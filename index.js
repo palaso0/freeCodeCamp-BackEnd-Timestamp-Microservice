@@ -24,29 +24,58 @@ app.get("/api/hello", function (req, res) {
   res.json({ greeting: 'hello API' });
 });
 
+app.get("/api/", function (req, res) {
+  res.json({ 'unix': Date.now(), 'utc': Date() });
+});
+
 app.get("/api/:date?", (req, res) => {
   let date = req.params.date;
-  let dateTime = new Date()
-  if (date.includes("-")) {
-    dateTime = new Date(date)
-  } else {
-    dateTime = new Date(+date)
+
+  function isValidDate(d) {
+    return d instanceof Date && !isNaN(d);
   }
-  let dateArray = dateTime.toString().split(" ")
-  let day = dateArray[0]
-  let month = dateArray[1]
-  let dayDate = dateArray[2]
-  let year = dateArray[3]
-  let hour = dateArray[4]
-  const GMT = "GMT"
-  res.json({
-    unix: dateTime.getTime(),
-    utc: `${day}, ${dayDate} ${month} ${year} ${hour} ${GMT}`
-  });
+
+  if (isValidDate(new Date(date))) {
+    let date_string = new Date(date)
+    res.send({
+      unix: date_string.getTime(),
+      utc: date_string.toUTCString()
+    });
+  } else if (isValidDate(new Date(+date))) {
+    let date_string = new Date(+date)
+    res.send({
+      unix: date_string.getTime(),
+      utc: date_string.toUTCString()
+    });
+  }else{
+    res.send({
+      error: "Invalid Date"
+    });
+  }
+
+  let date_string = new Date()
+  if (date.includes("-")) {
+    date_string = new Date(date)
+  } else {
+    date_string = new Date(+date)
+  }
+
+
+  if (isValidDate(date_string)) {
+    res.send({
+      unix: date_string.getTime(),
+      utc: date_string.toUTCString()
+    });
+  } else {
+    res.send({
+      error: "Invalid Date"
+    });
+  }
 
 })
 
 // listen for requests :)
-var listener = app.listen(3000, function () {
+var listener = app.listen(3001, function () {
   console.log('Your app is listening on port ' + listener.address().port);
 });
+
